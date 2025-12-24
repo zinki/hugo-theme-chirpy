@@ -1,4 +1,4 @@
-module github.com/geekifan/hugo-theme-chirpy
+module github.com/zinki/hugo-theme-chirpy
 
 go 1.24.2
 
