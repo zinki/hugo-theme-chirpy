@@ -8,15 +8,6 @@
 <div id="Comments" style="visibility:hidden;opacity:0;transition:opacity .12s linear"></div>
 
 <script>
-  const artalkInstance = Artalk.init({
-    el:        '#Comments',
-    pageKey:   '{{ .Page.RelPermalink }}',
-    pageTitle: '{{ .Title }}',
-    server:    '{{ $.Site.Params.comments.artalk.server }}',
-    site:      '{{ $.Site.Params.comments.artalk.site }}',
-    darkMode:  '{{ $.Site.Params.comments.artalk.darkMode }}'
-  })
-
   function isDarkModeNow() {
     if (window.Theme && window.Theme.visualState) {
       return window.Theme.visualState === 'dark';
@@ -26,18 +17,42 @@
     return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
   }
 
-  // apply initial value
-  artalkInstance.setDarkMode(Boolean(isDarkModeNow()));
+  // initialize with current theme so internal render uses correct style
+  const artalkInstance = Artalk.init({
+    el:        '#Comments',
+    pageKey:   '{{ .Page.RelPermalink }}',
+    pageTitle: '{{ .Title }}',
+    server:    '{{ $.Site.Params.comments.artalk.server }}',
+    site:      '{{ $.Site.Params.comments.artalk.site }}',
+    darkMode:  Boolean(isDarkModeNow())
+  });
 
-  // reveal comments container after theme applied to avoid flash
-  (function revealComments() {
+  // reveal only after Artalk has rendered (avoid flash). fallback after 2s.
+  (function waitForRenderAndReveal() {
     const $comments = document.getElementById('Comments');
     if (!$comments) return;
-    // Reveal on next frame to ensure theme attribute was applied
-    requestAnimationFrame(() => {
-      $comments.style.visibility = 'visible';
-      $comments.style.opacity = '1';
-    });
+    const start = Date.now();
+    const timeout = 2000; // ms
+
+    function check() {
+      // childElementCount indicates Artalk has populated DOM
+      if ($comments.childElementCount > 0) {
+        requestAnimationFrame(() => {
+          $comments.style.visibility = 'visible';
+          $comments.style.opacity = '1';
+        });
+        return;
+      }
+      if (Date.now() - start > timeout) {
+        // fallback: reveal even if not populated to avoid permanent hidden state
+        $comments.style.visibility = 'visible';
+        $comments.style.opacity = '1';
+        return;
+      }
+      requestAnimationFrame(check);
+    }
+    // start checking on next frame so theme attribute has time to apply
+    requestAnimationFrame(check);
   })();
 
   // listen for Theme.flip() notifications
@@ -49,6 +64,6 @@
 
   // compatibility with other events
   window.addEventListener('onColorSchemeChange', (e) => {
-    artalkInstance.setDarkMode(e.detail == 'dark')
-  })
+    artalkInstance.setDarkMode(e.detail == 'dark');
+  });
 </script>
