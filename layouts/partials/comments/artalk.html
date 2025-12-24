@@ -17,6 +17,26 @@
     darkMode:  '{{ $.Site.Params.comments.artalk.darkMode }}'
   })
 
+  function isDarkModeNow() {
+    if (window.Theme && window.Theme.visualState) {
+      return window.Theme.visualState === 'dark';
+    }
+    const attr = document.documentElement.getAttribute('data-mode');
+    if (attr) return attr === 'dark';
+    return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  }
+
+  // apply initial value
+  artalkInstance.setDarkMode(Boolean(isDarkModeNow()));
+
+  // listen for Theme.flip() notifications
+  window.addEventListener('message', (e) => {
+    if (e && e.data && e.data.id === 'theme-mode') {
+      artalkInstance.setDarkMode(isDarkModeNow());
+    }
+  });
+
+  // existing compatibility event
   window.addEventListener('onColorSchemeChange', (e) => {
     artalkInstance.setDarkMode(e.detail == 'dark')
   })
