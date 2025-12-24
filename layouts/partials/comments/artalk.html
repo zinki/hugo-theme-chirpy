@@ -2,75 +2,53 @@
 <link href="https://artalk.zeven.site/dist/Artalk.css" rel="stylesheet">
 
 <!-- JS -->
+<script src="https://artalk.zeven.site/dist/Artalk.js"></script>
 
 <!-- Artalk -->
-<div id="Comments" class="comments-placeholder" aria-busy="true">
-  <div class="spinner" aria-hidden="true"></div>
-</div>
+<div id="Comments" style="visibility:hidden;opacity:0;transition:opacity .12s linear"></div>
 
 <script>
-(function(){
-  const ARTALK_SRC = 'https://artalk.zeven.site/dist/Artalk.js';
+  const artalkInstance = Artalk.init({
+    el:        '#Comments',
+    pageKey:   '{{ .Page.RelPermalink }}',
+    pageTitle: '{{ .Title }}',
+    server:    '{{ $.Site.Params.comments.artalk.server }}',
+    site:      '{{ $.Site.Params.comments.artalk.site }}',
+    darkMode:  '{{ $.Site.Params.comments.artalk.darkMode }}'
+  })
 
   function isDarkModeNow() {
-    if (window.Theme && window.Theme.visualState) return window.Theme.visualState === 'dark';
+    if (window.Theme && window.Theme.visualState) {
+      return window.Theme.visualState === 'dark';
+    }
     const attr = document.documentElement.getAttribute('data-mode');
     if (attr) return attr === 'dark';
     return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
   }
 
-  function cleanupPlaceholder() {
-    const el = document.getElementById('Comments');
-    if (!el) return;
-    el.removeAttribute('aria-busy');
-    const spinner = el.querySelector('.spinner'); if (spinner) spinner.remove();
-  }
+  // apply initial value
+  artalkInstance.setDarkMode(Boolean(isDarkModeNow()));
 
-  function initArtalk() {
-    // ensure theme attribute has been applied
+  // reveal comments container after theme applied to avoid flash
+  (function revealComments() {
+    const $comments = document.getElementById('Comments');
+    if (!$comments) return;
+    // Reveal on next frame to ensure theme attribute was applied
     requestAnimationFrame(() => {
-      const artalkInstance = window.Artalk.init({
-        el: '#Comments',
-        pageKey: '{{ .Page.RelPermalink }}',
-        pageTitle: '{{ .Title }}',
-        server: '{{ $.Site.Params.comments.artalk.server }}',
-        site: '{{ $.Site.Params.comments.artalk.site }}',
-        darkMode: Boolean(isDarkModeNow())
-      });
-
-      // remove spinner
-      cleanupPlaceholder();
-
-      // listen for theme flips
-      window.addEventListener('message', (e) => {
-        if (e && e.data && e.data.id === 'theme-mode') {
-          artalkInstance.setDarkMode(isDarkModeNow());
-        }
-      });
-
-      // compatibility with other events
-      window.addEventListener('onColorSchemeChange', (e) => {
-        artalkInstance.setDarkMode(e.detail === 'dark');
-      });
+      $comments.style.visibility = 'visible';
+      $comments.style.opacity = '1';
     });
-  }
+  })();
 
-  function loadScript(cb) {
-    if (window.Artalk) { cb(); return; }
-    const s = document.createElement('script');
-    s.src = ARTALK_SRC; s.async = true; s.onload = cb; s.onerror = cb; document.head.appendChild(s);
-  }
+  // listen for Theme.flip() notifications
+  window.addEventListener('message', (e) => {
+    if (e && e.data && e.data.id === 'theme-mode') {
+      artalkInstance.setDarkMode(isDarkModeNow());
+    }
+  });
 
-  if (window.Theme) {
-    loadScript(initArtalk);
-  } else {
-    document.addEventListener('DOMContentLoaded', () => loadScript(initArtalk), { once: true });
-  }
-})();
+  // compatibility with other events
+  window.addEventListener('onColorSchemeChange', (e) => {
+    artalkInstance.setDarkMode(e.detail == 'dark')
+  })
 </script>
-
-<style>
-  .comments-placeholder {min-height: 120px;display:flex;align-items:center;justify-content:center}
-  .comments-placeholder .spinner{width:20px;height:20px;border-radius:50%;border:2px solid rgba(0,0,0,0.08);border-top-color:rgba(0,0,0,0.28);animation:spin .8s linear infinite}
-  @keyframes spin{to{transform:rotate(360deg)}}
-</style>
