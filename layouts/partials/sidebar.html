@@ -26,7 +26,7 @@
         {{ if eq (.URL) $.RelPermalink }}
           {{ $active = true }}
         {{ end }}
-        <li class="nav-item{{ if $active }} active{{ end }}">
+        <li class="nav-item{{ if $active }}  active{{ end }}">
           <a href="{{ .URL }}" class="nav-link">
             <i class="fa-fw fas {{ .Pre }}"></i>
             <span>{{ .Name | upper }}</span>
@@ -34,12 +34,12 @@
         </li>
         <!-- .nav-item -->
       {{ end }}
-      <li class="nav-item mt-4">
+      <!-- <li class="nav-item mt-4">
         <a class="nav-link no-hover">
           <i class="fa-fw fas fa-language"></i>
           {{ partial "language-selector.html" . }}
         </a>
-      </li>
+      </li> -->
     </ul>
   </nav>
 
