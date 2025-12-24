@@ -31,6 +31,8 @@
 
   // listen for Theme.flip() notifications
   window.addEventListener('message', (e) => {
+    console.log(e.data);
+    console.log(isDarkModeNow());
     if (e && e.data && e.data.id === 'theme-mode') {
       artalkInstance.setDarkMode(isDarkModeNow());
     }
@@ -38,6 +40,7 @@
 
   // existing compatibility event
   window.addEventListener('onColorSchemeChange', (e) => {
+    console.log(1);
     artalkInstance.setDarkMode(e.detail == 'dark')
   })
 </script>
