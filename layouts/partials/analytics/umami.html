@@ -1,0 +1,16 @@
+  <script>
+  const host = location.hostname;
+  const isLocal =
+    host === 'localhost' ||
+    host === '127.0.0.1' ||
+    host.startsWith('192.168.') ||
+    host.startsWith('10.') ||
+    host.startsWith('172.16.');
+  if (!isLocal) {
+    const s = document.createElement('script');
+    s.defer = true;
+    s.src = '{{ site.Params.analytics.umami.script }}';
+    s.setAttribute('data-website-id', '{{ site.Params.analytics.umami.id }}');
+    document.head.appendChild(s);
+  }
+</script>
