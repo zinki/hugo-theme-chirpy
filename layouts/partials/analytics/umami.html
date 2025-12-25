@@ -1,5 +1,7 @@
   <script>
   const host = location.hostname;
+  console.log(host)
+  console.log('{{ site.Params.analytics.umami.script }}')
   const isLocal =
     host === 'localhost' ||
     host === '127.0.0.1' ||
