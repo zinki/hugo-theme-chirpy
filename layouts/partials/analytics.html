@@ -1,0 +1,4 @@
+{{ $enableAnalytics := .Params.comments | default .Site.Params.comments.enable }}
+{{ if and $enableAnalytics .Site.Params.analytics.provider }}
+  {{ partial (printf "analytics/%s.html" .Site.Params.analytics.provider) . }}
+{{ end }}
