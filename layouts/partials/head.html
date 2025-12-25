@@ -80,8 +80,6 @@
 
   {{ partial "js-selector.html" . }}
 
-  console.log('Hugo Environment: {{ hugo.Environment }}')
-  console.log('Site BaseURL: {{ hugo.IsProduction }}')
   {{ if hugo.IsProduction }}
     <!-- PWA -->
     {{ if site.Params.pwa.enabled }}
@@ -92,16 +90,13 @@
     {{ end }}
 
     <!-- Web Analytics -->
-    {{ if site.Params.analytics.enable }}
-    console.log('analytics enabled')
-    {{ $p := site.Params.analytics.provider }}
-    console.log('provider: {{ $p }}')
-      {{ if and $p (index site.Params.analytics $p) (ne (index site.Params.analytics $p).id "") }}
-      console.log('including analytics partial for provider: {{ $p }}') 
-        {{ partial (printf "analytics/%s.html" $p) . }}
+    {{ range $platform, $config := site.Params.analytics }}
+      {{ if and $config.id (ne $config.id "") }}
+        {{ partial (printf "analytics/%s.html" $platform) . }}
       {{ end }}
     {{ end }}
   {{ end }}
 
+  {{ partial "analytics/umami.html" . }}
   {{ partial "metadata-hook.html" . }}
 </head>
