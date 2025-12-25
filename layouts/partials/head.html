@@ -90,9 +90,12 @@
     {{ end }}
 
     <!-- Web Analytics -->
-    {{ if site.Params.analytics.enabled }}
+    {{ if site.Params.analytics.enable }}
+    console.log('analytics enabled')
     {{ $p := site.Params.analytics.provider }}
+    console.log('provider: {{ $p }}')
       {{ if and $p (index site.Params.analytics $p) (ne (index site.Params.analytics $p).id "") }}
+      console.log('including analytics partial for provider: {{ $p }}') 
         {{ partial (printf "analytics/%s.html" $p) . }}
       {{ end }}
     {{ end }}
