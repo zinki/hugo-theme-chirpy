@@ -80,6 +80,8 @@
 
   {{ partial "js-selector.html" . }}
 
+  console.log('Hugo Environment: {{ hugo.Environment }}')
+  console.log('Site BaseURL: {{ hugo.IsProduction }}')
   {{ if hugo.IsProduction }}
     <!-- PWA -->
     {{ if site.Params.pwa.enabled }}
