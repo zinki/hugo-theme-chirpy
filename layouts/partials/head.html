@@ -90,13 +90,9 @@
     {{ end }}
 
     <!-- Web Analytics -->
-    {{ range $platform, $config := site.Params.analytics }}
-      {{ if and $config.id (ne $config.id "") }}
-        {{ partial (printf "analytics/%s.html" $platform) . }}
-      {{ end }}
-    {{ end }}
+    {{ partial "analytics.html" . }}
   {{ end }}
 
-  {{ partial "analytics.html" . }}
+
   {{ partial "metadata-hook.html" . }}
 </head>
